@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Available Food</h2>
+  {% for f in foods %}
+    <div>
+      <strong>{{ f.food_name }}</strong> — {{ f.quantity }}<br>
+      <small>Donor: {{ f.donor.username if f.donor else "Unknown" }} • {{ f.created_at }}</small>
+      <p>{{ f.notes }}</p>
+    </div>
+  {% else %}
+    <p>No food currently available.</p>
+  {% endfor %}
+{% endblock %}

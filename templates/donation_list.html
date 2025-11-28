@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>My Donations</h2>
+  {% for d in donations %}
+    <div>
+      <strong>{{ d.food_name }}</strong> — {{ d.quantity }} <br>
+      <small>{{ d.created_at }}</small>
+    </div>
+  {% else %}
+    <p>No donations yet.</p>
+  {% endfor %}
+{% endblock %}

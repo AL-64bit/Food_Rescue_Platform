@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Donate Food</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.food_name.label }} {{ form.food_name }} <br>
+    {{ form.quantity.label }} {{ form.quantity }} <br>
+    {{ form.notes.label }} {{ form.notes }} <br>
+    {{ form.submit }}
+  </form>
+{% endblock %}

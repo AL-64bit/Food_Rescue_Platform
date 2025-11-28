@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Admin Dashboard</h2>
+  <h3>Users</h3>
+  <ul>
+    {% for u in users %}
+      <li>{{ u.username }} — {{ u.role }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Donations</h3>
+  {% for d in donations %}
+    <div>
+      <strong>{{ d.food_name }}</strong> by {{ d.donor.username if d.donor else "Unknown" }}
+      <form method="POST" action="{{ url_for('dashboard.delete_donation', donation_id=d.id) }}">
+        <button type="submit">Delete</button>
+      </form>
+    </div>
+  {% endfor %}
+{% endblock %}
