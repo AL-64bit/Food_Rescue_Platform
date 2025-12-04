@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<title>Login</title>
+<body>
+    <h1>Login Page</h1>
+
+    <form action="" method="POST">
+        {{ form.hidden_tag() }} <!--Security Feature-->
+        {{ form.username }}
+        {{ form.password }}
+        {{ form.submit }}
+    </form>
+
+    <a href="{{ url_for('register') }}">Don't have an account? Sign Up</a>
+</body>
+
+
+{% endblock %}

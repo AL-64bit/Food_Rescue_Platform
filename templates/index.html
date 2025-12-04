@@ -4,10 +4,12 @@
 
 {% block content %}
 
-<h1>Hello, {{ title }}</h1>
+<h1>Hello</h1>
 
 <p>Welcome</p>
 
-<a href="{{ url_for('home') }}">About</a>
+<a href="{{ url_for('login') }}">Login</a><br>
+
+<a href="{{ url_for('register') }}">Register</a><br>
 
 {% endblock %}
