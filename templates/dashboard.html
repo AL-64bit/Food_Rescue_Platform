@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
 <body>
     <h1>hello you are login</h1>
+
+    <a href="{{url_for('donor_dashboard')}}">Donor</a><br>
+    <a href="{{url_for('recipient_dashboard')}}">Recipient</a><br>
     <a href="{{url_for('logout')}}">Press here to logout</a>
 </body>
-</html>
+{% endblock %}

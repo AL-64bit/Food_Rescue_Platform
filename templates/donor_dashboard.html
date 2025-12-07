@@ -1,0 +1,56 @@
+{% extends "base.html"  %}
+
+{% block title %}Donor{% endblock %}
+
+{% block content %}
+
+<body class="p-4">
+
+    <h1 class="mb-4">Donor Dashboard</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category=='success' else 'danger' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Donation Form -->
+    <form method="POST" action="/donor" class="card p-4" style="max-width: 400px;">
+        {{ form.hidden_tag() }}
+
+        <!-- Food Type -->
+        <div class="mb-3">
+            {{ form.foodType.label(class="form-label") }}
+            {{ form.foodType(class="form-select") }}
+
+            {% if form.foodType.errors %}
+                <div class="text-danger small">
+                    {{ form.foodType.errors[0] }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Quantity -->
+        <div class="mb-3">
+            {{ form.quantity.label(class="form-label") }}
+            {{ form.quantity(class="form-control") }}
+
+            {% if form.quantity.errors %}
+                <div class="text-danger small">
+                    {{ form.quantity.errors[0] }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Submit Button -->
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+
+</body>
+
+{% endblock %}
