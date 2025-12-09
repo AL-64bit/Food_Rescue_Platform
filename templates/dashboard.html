@@ -1,13 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard - Food Rescue Platform{% endblock %}
 
 {% block content %}
-<body>
-    <h1>hello you are login</h1>
+{{ super() }}
+<div class="container">
+    <div style="text-align: center; margin: 40px 0;">
+        <h1>Welcome, {{ current_user.username }}! 👋</h1>
+        <p style="color: #666; font-size: 16px;">Choose your role to get started</p>
+    </div>
 
-    <a href="{{url_for('donor_dashboard')}}">Donor</a><br>
-    <a href="{{url_for('recipient_dashboard')}}">Recipient</a><br>
-    <a href="{{url_for('logout')}}">Press here to logout</a>
-</body>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 30px 0;">
+        <!-- Donor Card -->
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s, box-shadow 0.3s;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🤝</div>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Donor</h2>
+            <p style="color: #666; margin-bottom: 20px;">Share surplus food and make a difference in your community</p>
+            <a href="{{url_for('donor_dashboard')}}" class="btn" style="width: 100%; text-align: center;">Go to Donor Dashboard</a>
+        </div>
+
+        <!-- Recipient Card -->
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s, box-shadow 0.3s;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🍽️</div>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Recipient</h2>
+            <p style="color: #666; margin-bottom: 20px;">Find available food donations and submit requests</p>
+            <a href="{{url_for('recipient_dashboard')}}" class="btn" style="width: 100%; text-align: center;">Go to Recipient Dashboard</a>
+        </div>
+
+        <!-- Admin Card (if admin) -->
+        {% if current_user.is_authenticated and current_user.username == 'admin' %}
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s, box-shadow 0.3s;">
+            <div style="font-size: 48px; margin-bottom: 15px;">⚙️</div>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Admin</h2>
+            <p style="color: #666; margin-bottom: 20px;">Manage donations and monitor platform activity</p>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn" style="width: 100%; text-align: center;">Go to Admin Panel</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

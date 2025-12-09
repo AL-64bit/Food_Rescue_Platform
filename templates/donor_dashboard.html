@@ -1,56 +1,139 @@
-{% extends "base.html"  %}
+{% extends "base.html" %}
 
-{% block title %}Donor{% endblock %}
+{% block title %}Donor Dashboard - Food Rescue Platform{% endblock %}
 
 {% block content %}
-
-<body class="p-4">
-
-    <h1 class="mb-4">Donor Dashboard</h1>
+{{ super() }}
+<div class="container">
+    <h1>📦 Donor Dashboard</h1>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ 'success' if category=='success' else 'danger' }}">
+          <div class="alert alert-{{ 'success' if category=='success' else 'danger' if category=='danger' else 'info' }}">
             {{ message }}
           </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <!-- Donation Form -->
-    <form method="POST" action="/donor" class="card p-4" style="max-width: 400px;">
-        {{ form.hidden_tag() }}
+    <!-- Add Donation Form -->
+    <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px; max-width: 500px;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 20px;">Add a New Donation</h2>
+        
+        <form method="POST" action="/donor">
+            {{ form.hidden_tag() }}
 
-        <!-- Food Type -->
-        <div class="mb-3">
-            {{ form.foodType.label(class="form-label") }}
-            {{ form.foodType(class="form-select") }}
-
-            {% if form.foodType.errors %}
-                <div class="text-danger small">
-                    {{ form.foodType.errors[0] }}
+            <!-- Food Type -->
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ form.foodType.label.text }}</label>
+                {{ form.foodType(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;", onchange="showCustomFoodType(this.value)") }}
+                {% if form.foodType.errors %}
+                    <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ form.foodType.errors[0] }}</div>
+                {% endif %}
+                <div id="custom-foodType-field" style="display:none; margin-top:10px;">
+                    {{ form.custom_foodType(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;") }}
                 </div>
-            {% endif %}
-        </div>
+            </div>
 
-        <!-- Quantity -->
-        <div class="mb-3">
-            {{ form.quantity.label(class="form-label") }}
-            {{ form.quantity(class="form-control") }}
+            <!-- Quantity -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ form.quantity.label.text }}</label>
+                {{ form.quantity(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;") }}
+                {% if form.quantity.errors %}
+                    <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ form.quantity.errors[0] }}</div>
+                {% endif %}
+            </div>
 
-            {% if form.quantity.errors %}
-                <div class="text-danger small">
-                    {{ form.quantity.errors[0] }}
+
+            <!-- Location -->
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ form.location.label.text }}</label>
+                {{ form.location(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;", onchange="showCustomLocation(this.value)") }}
+                {% if form.location.errors %}
+                    <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ form.location.errors[0] }}</div>
+                {% endif %}
+                <div id="custom-location-field" style="display:none; margin-top:10px;">
+                    {{ form.custom_location(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;") }}
                 </div>
-            {% endif %}
-        </div>
+            </div>
 
-        <!-- Submit Button -->
-        {{ form.submit(class="btn btn-primary") }}
-    </form>
+            <!-- Expiry Date -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ form.expiry.label.text }}</label>
+                {{ form.expiry(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;", onchange="showCustomExpiry(this.value)") }}
+                {% if form.expiry.errors %}
+                    <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ form.expiry.errors[0] }}</div>
+                {% endif %}
+                <div id="custom-expiry-field" style="display:none; margin-top:10px;">
+                    {{ form.custom_expiry(style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;") }}
+                </div>
+            </div>
 
-</body>
+            <script>
+            function showCustomFoodType(val) {
+                document.getElementById('custom-foodType-field').style.display = (val === 'Other') ? 'block' : 'none';
+            }
+            function showCustomLocation(val) {
+                document.getElementById('custom-location-field').style.display = (val === 'Other') ? 'block' : 'none';
+            }
+            function showCustomExpiry(val) {
+                document.getElementById('custom-expiry-field').style.display = (val === 'Custom') ? 'block' : 'none';
+            }
+            // On page load, check if custom fields should be shown
+            document.addEventListener('DOMContentLoaded', function() {
+                showCustomFoodType(document.querySelector('[name="foodType"]').value);
+                showCustomLocation(document.querySelector('[name="location"]').value);
+                showCustomExpiry(document.querySelector('[name="expiry"]').value);
+            });
+            </script>
 
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-success" style="width: 100%; font-weight: 600;">Add Donation</button>
+        </form>
+    </div>
+
+    <!-- Your Donations -->
+    <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #2c3e50; margin-bottom: 15px; font-size: 20px;">Your Donations (Total: {{ donations|length }})</h2>
+        
+        {% if donations|length == 0 %}
+            <p style="color: #999; text-align: center; padding: 30px;">No donations yet. Add your first donation above!</p>
+        {% else %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 12px; text-align: left;">Food Type</th>
+                        <th style="padding: 12px; text-align: left;">Quantity</th>
+                        <th style="padding: 12px; text-align: left;">Location</th>
+                        <th style="padding: 12px; text-align: left;">Expiry</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donation in donations %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px;">{{ donation.foodType }}</td>
+                        <td style="padding: 12px;">{{ donation.quantity }}</td>
+                        <td style="padding: 12px;">{{ donation.location }}</td>
+                        <td style="padding: 12px;">{{ donation.expiry }}</td>
+                        <td style="padding: 12px;">
+                            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
+                                background: {{ '#d4edda' if donation.status=='available' else '#fff3cd' if donation.status=='requested' else '#d1ecf1' }};
+                                color: {{ '#155724' if donation.status=='available' else '#856404' if donation.status=='requested' else '#0c5460' }};">
+                                {{ donation.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('dashboard') }}" class="btn">← Back to Dashboard</a>
+    </div>
+</div>
 {% endblock %}

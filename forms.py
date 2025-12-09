@@ -43,18 +43,48 @@ class DonorForm(FlaskForm):
             ('vegetables', 'Vegetables'),
             ('proteins', 'Proteins'),
             ('dairy', 'Dairy'),
-            ('grains', 'Grains')
+            ('grains', 'Grains'),
+            ('Other', 'Other (please specify below)')
         ],
         validators=[DataRequired()]
     )
+    custom_foodType = StringField(
+        '',
+        render_kw={"placeholder": "If Other, specify food"}
+    )
     quantity = IntegerField(
         'Quantity', 
-        validators=[DataRequired(), NumberRange(min=0, max=200)
-        ]
+        validators=[DataRequired(), NumberRange(min=0, max=200)]
+    )
+
+    location = SelectField(
+        'Location',
+        choices=[
+            ('Community Center', 'Community Center'),
+            ('School', 'School'),
+            ('Religious Institution', 'Religious Institution'),
+            ('Local Park', 'Local Park'),
+            ('Other', 'Other (please specify below)')
+        ],
+        validators=[DataRequired()]
+    )
+    custom_location = StringField(
+        '',
+        render_kw={"placeholder": "If Other, specify location"}
+    )
+    expiry = SelectField(
+        'Expiry Date',
+        choices=[
+            ('Today', 'Today'),
+            ('Tomorrow', 'Tomorrow'),
+            ('3 Days', 'In 3 Days'),
+            ('1 Week', 'In 1 Week'),
+            ('Custom', 'Custom Date (YYYY-MM-DD)')
+        ],
+        validators=[DataRequired()]
+    )
+    custom_expiry = StringField(
+        '',
+        render_kw={"placeholder": "If Custom, specify date"}
     )
     submit = SubmitField("Add Donation")
-
-
-
-
- 

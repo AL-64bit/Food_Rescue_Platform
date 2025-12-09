@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+    <h1>Admin Dashboard</h1>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div style="padding: 12px; margin: 10px 0; border-radius: 4px; background: {{ '#d4edda' if category=='success' else '#f8d7da' }}; color: {{ '#155724' if category=='success' else '#721c24' }}; border: 1px solid {{ '#c3e6cb' if category=='success' else '#f5c6cb' }};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 6px; text-align: center; border-left: 4px solid #2196F3;">
+            <h3 style="margin: 0; color: #2196F3;">{{ donations|length }}</h3>
+            <p style="margin: 5px 0 0 0; color: #666;">Total Donations</p>
+        </div>
+        <div style="background: #fff3e0; padding: 15px; border-radius: 6px; text-align: center; border-left: 4px solid #FF9800;">
+            <h3 style="margin: 0; color: #FF9800;">{{ requests|length }}</h3>
+            <p style="margin: 5px 0 0 0; color: #666;">Pending Requests</p>
+        </div>
+        <div style="background: #f3e5f5; padding: 15px; border-radius: 6px; text-align: center; border-left: 4px solid #9C27B0;">
+            <h3 style="margin: 0; color: #9C27B0;">{{ total_available }}</h3>
+            <p style="margin: 5px 0 0 0; color: #666;">Available Now</p>
+        </div>
+    </div>
+
+    <h2>All Donations</h2>
+    {% if donations|length == 0 %}
+        <p style="color: #999;">No donations yet.</p>
+    {% else %}
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <thead style="background: #f5f5f5;">
+                <tr>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">ID</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Food Type</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Quantity</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in donations %}
+                <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
+                    <td style="padding: 12px;">{{ d.id }}</td>
+                    <td style="padding: 12px;">{{ d.foodType }}</td>
+                    <td style="padding: 12px;">{{ d.quantity }}</td>
+                    <td style="padding: 12px;">
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; 
+                            background: {{ '#d4edda' if d.status=='available' else '#fff3cd' if d.status=='requested' else '#d1ecf1' }};
+                            color: {{ '#155724' if d.status=='available' else '#856404' if d.status=='requested' else '#0c5460' }};">
+                            {{ d.status }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px;">
+                        <form method="POST" action="{{ url_for('admin_update_donation', donation_id=d.id) }}" style="display:inline-block; margin-right: 8px;">
+                            <select name="status" style="padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                                <option value="available" {% if d.status=='available' %}selected{% endif %}>available</option>
+                                <option value="requested" {% if d.status=='requested' %}selected{% endif %}>requested</option>
+                                <option value="fulfilled" {% if d.status=='fulfilled' %}selected{% endif %}>fulfilled</option>
+                            </select>
+                            <button type="submit" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Update</button>
+                        </form>
+
+                        <form method="POST" action="{{ url_for('admin_delete_donation', donation_id=d.id) }}" style="display:inline-block;">
+                            <button type="submit" onclick="return confirm('Delete this donation?');" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <h2>Pending Requests</h2>
+    {% if requests|length == 0 %}
+        <p style="color: #999;">No pending requests.</p>
+    {% else %}
+        <div style="display: grid; gap: 10px;">
+            {% for r in requests %}
+                <div style="padding: 15px; background: #fffbea; border-left: 4px solid #ffc107; border-radius: 4px;">
+                    <strong>ID {{ r.id }}</strong> — <strong>{{ r.foodType }}</strong> (Qty: {{ r.quantity }}) 
+                    <span style="float: right; color: #ff6b6b; font-weight: bold;">{{ r.status }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+        <a href="{{ url_for('dashboard') }}" style="display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
