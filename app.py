@@ -1,7 +1,8 @@
 from flask import Flask, render_template, url_for, redirect, session, flash, request
+from datetime import date, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from forms import LoginForm, RegisterForm, DonorForm
-from models import db, User, Donor
+from models import db, User, Donor, Request
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
@@ -86,15 +87,92 @@ def register():
 def donor_dashboard():
     form = DonorForm()
     if form.validate_on_submit():
-        donor = Donor(foodType=form.foodType.data, quantity=form.quantity.data)
+        # Determine final food type (use custom if 'Other')
+        final_food = form.custom_foodType.data.strip() if form.foodType.data == 'Other' and form.custom_foodType.data else form.foodType.data
+
+        # Determine final location (use custom if 'Other')
+        final_location = form.custom_location.data.strip() if form.location.data == 'Other' and form.custom_location.data else form.location.data
+
+        # Determine final expiry (map choices to actual dates or use custom)
+        expiry_choice = form.expiry.data
+        if expiry_choice == 'Today':
+            final_expiry = date.today().isoformat()
+        elif expiry_choice == 'Tomorrow':
+            final_expiry = (date.today() + timedelta(days=1)).isoformat()
+        elif expiry_choice == '3 Days':
+            final_expiry = (date.today() + timedelta(days=3)).isoformat()
+        elif expiry_choice == '1 Week':
+            final_expiry = (date.today() + timedelta(weeks=1)).isoformat()
+        elif expiry_choice == 'Custom' and form.custom_expiry.data:
+            final_expiry = form.custom_expiry.data.strip()
+        else:
+            final_expiry = ''
+
+        donor = Donor(
+            donor_id=current_user.id,
+            foodType=final_food,
+            quantity=form.quantity.data,
+            location=final_location,
+            expiry=final_expiry
+        )
         db.session.add(donor)
         db.session.commit()
         flash('Donation added successfully!', 'success')
         return redirect(url_for('donor_dashboard'))
     
-    # Show all donations
-    donations = Donor.query.all()
+    # Show user's donations
+    donations = Donor.query.filter_by(donor_id=current_user.id).all()
     return render_template('donor_dashboard.html', form=form, donations=donations)
+
+# View requests for a specific donation
+@app.route('/donor/requests/<int:donation_id>', methods=['GET', 'POST'])
+@login_required
+def view_donation_requests(donation_id):
+    donation = Donor.query.get_or_404(donation_id)
+    
+    # Ensure user owns this donation
+    if donation.donor_id != current_user.id:
+        flash('You do not have permission to view these requests.', 'danger')
+        return redirect(url_for('donor_dashboard'))
+    
+    # Get all requests for this donation
+    requests = Request.query.filter_by(donation_id=donation_id).all()
+    
+    return render_template('donation_requests.html', donation=donation, requests=requests)
+
+# Approve or reject a request
+@app.route('/donor/request/<int:request_id>/approve', methods=['POST'])
+@login_required
+def approve_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    donation = req.donation
+    
+    # Ensure user owns the donation
+    if donation.donor_id != current_user.id:
+        flash('You do not have permission to approve this request.', 'danger')
+        return redirect(url_for('donor_dashboard'))
+    
+    req.status = 'approved'
+    donation.status = 'requested'
+    db.session.commit()
+    flash('Request approved!', 'success')
+    return redirect(url_for('view_donation_requests', donation_id=donation.id))
+
+@app.route('/donor/request/<int:request_id>/reject', methods=['POST'])
+@login_required
+def reject_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    donation = req.donation
+    
+    # Ensure user owns the donation
+    if donation.donor_id != current_user.id:
+        flash('You do not have permission to reject this request.', 'danger')
+        return redirect(url_for('donor_dashboard'))
+    
+    req.status = 'rejected'
+    db.session.commit()
+    flash('Request rejected.', 'info')
+    return redirect(url_for('view_donation_requests', donation_id=donation.id))
 
 # ============ RECIPIENT ROUTES ============
 @app.route('/recipient', methods=['GET', 'POST'])
@@ -109,14 +187,28 @@ def recipient_dashboard():
         if donation_id:
             donation = Donor.query.get_or_404(int(donation_id))
             if donation.status == "available":
-                donation.status = "requested"
+                # Create a request instead of directly updating donation status
+                donation_request = Request(
+                    donor_id=current_user.id,
+                    donation_id=int(donation_id),
+                    status='pending'
+                )
+                db.session.add(donation_request)
                 db.session.commit()
-                flash("Donation requested!", 'success')
+                flash("Request submitted! Waiting for donor approval.", 'success')
             else:
                 flash("Donation is not available.", 'warning')
         return redirect(url_for('recipient_dashboard'))
 
     return render_template('recipient_dashboard.html', donations=donations)
+
+# View recipient's own requests
+@app.route('/recipient/my-requests', methods=['GET'])
+@login_required
+def my_requests():
+    # Get all requests made by this recipient
+    requests = Request.query.filter_by(donor_id=current_user.id).all()
+    return render_template('my_requests.html', requests=requests)
 
 
 # ============ ADMIN DECORATOR & ROUTES ============
@@ -138,11 +230,40 @@ def admin_required(func):
 @login_required
 @admin_required
 def admin_dashboard():
-    # show all donations and requested ones
-    all_donations = Donor.query.order_by(Donor.id.desc()).all()
+    # Get filter parameters from query string
+    search_query = request.args.get('search', '').strip()
+    status_filter = request.args.get('status_filter', '').strip()
+    
+    # Start with all donations ordered by most recent
+    query = Donor.query.order_by(Donor.id.desc())
+    
+    # Apply status filter if provided
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+    
+    # Apply search filter (search in food type and location)
+    if search_query:
+        search_term = f"%{search_query}%"
+        query = query.filter(
+            (Donor.foodType.ilike(search_term)) | 
+            (Donor.location.ilike(search_term))
+        )
+    
+    all_donations = query.all()
     requested = Donor.query.filter_by(status='requested').all()
     total_available = Donor.query.filter_by(status='available').count()
     return render_template('admin.html', donations=all_donations, requests=requested, total_available=total_available)
+
+
+@app.route('/admin/donation/<int:donation_id>/requests')
+@login_required
+@admin_required
+def admin_view_donation_requests(donation_id):
+    """Admin view: list all requests for a specific donation."""
+    donation = Donor.query.get_or_404(donation_id)
+    # Load requests for this donation
+    requests = Request.query.filter_by(donation_id=donation_id).order_by(Request.created_at.desc()).all()
+    return render_template('admin_donation_requests.html', donation=donation, requests=requests)
 
 
 @app.route('/admin/donation/<int:donation_id>/update', methods=['POST'])

@@ -109,6 +109,7 @@
                         <th style="padding: 12px; text-align: left;">Location</th>
                         <th style="padding: 12px; text-align: left;">Expiry</th>
                         <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,6 +125,9 @@
                                 color: {{ '#155724' if donation.status=='available' else '#856404' if donation.status=='requested' else '#0c5460' }};">
                                 {{ donation.status }}
                             </span>
+                        </td>
+                        <td style="padding: 12px;">
+                            <a href="{{ url_for('view_donation_requests', donation_id=donation.id) }}" class="btn btn-success" style="padding: 6px 12px; font-size: 12px;">View Requests</a>
                         </td>
                     </tr>
                     {% endfor %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}My Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom: 30px;">📬 My Requests</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if requests|length == 0 %}
+        <p style="color: #999; text-align: center; padding: 40px;">You haven't made any requests yet. <a href="{{ url_for('recipient_dashboard') }}">Browse available donations</a></p>
+    {% else %}
+        <div style="display: grid; gap: 15px;">
+            {% for req in requests %}
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border-left: 4px solid {{ '#28a745' if req.status=='approved' else '#dc3545' if req.status=='rejected' else '#ffc107' }};">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 10px 0; color: #2c3e50;">{{ req.donation.foodType | upper }}</h3>
+                        <p><strong>Quantity:</strong> {{ req.donation.quantity }}</p>
+                        <p><strong>Pickup Location:</strong> {{ req.donation.location }}</p>
+                        <p><strong>Expiry:</strong> <span style="color: #27ae60; font-weight: 500;">{{ req.donation.expiry }}</span></p>
+                        <p><strong>Donor:</strong> {{ req.donation.user.username }}</p>
+                        <p><strong>Requested on:</strong> {{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; 
+                            background: {{ '#d4edda' if req.status=='approved' else '#f8d7da' if req.status=='rejected' else '#fff3cd' }}; 
+                            color: {{ '#155724' if req.status=='approved' else '#721c24' if req.status=='rejected' else '#856404' }};">
+                            {{ req.status | upper }}
+                        </span>
+                        {% if req.status == 'approved' %}
+                            <p style="margin-top: 15px; color: #27ae60; font-weight: bold;">✓ Your request was approved!</p>
+                            <p style="color: #666; font-size: 13px;">Contact the donor or go to the pickup location before {{ req.donation.expiry }}</p>
+                        {% elif req.status == 'rejected' %}
+                            <p style="margin-top: 15px; color: #e74c3c; font-weight: bold;">✗ Your request was rejected</p>
+                            <p style="color: #666; font-size: 13px;"><a href="{{ url_for('recipient_dashboard') }}">Browse other donations</a></p>
+                        {% elif req.status == 'pending' %}
+                            <p style="margin-top: 15px; color: #f39c12; font-weight: bold;">⏳ Waiting for approval</p>
+                            <p style="color: #666; font-size: 13px;">Donor will review your request soon</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('recipient_dashboard') }}" class="btn" style="background: #3498db;">← Browse More Donations</a>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: #6c757d;">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,10 +1,15 @@
-
 {% extends "base.html" %}
 {% block title %}Recipient Dashboard{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 style="margin-bottom: 30px;">Recipient Dashboard</h1>
+    <h1 style="margin-bottom: 30px;">🍽️ Recipient Dashboard</h1>
+
+    <!-- Quick Links -->
+    <div style="margin-bottom: 25px;">
+        <a href="{{ url_for('my_requests') }}" class="btn" style="background: #27ae60; margin-right: 10px;">📬 View My Requests</a>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="background: #6c757d;">← Back to Dashboard</a>
+    </div>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=True) %}
@@ -23,6 +28,8 @@
                 <tr>
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Food Type</th>
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Quantity</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Location</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Expiry</th>
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
                     <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Action</th>
                 </tr>
@@ -32,6 +39,8 @@
                 <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
                     <td style="padding: 12px;">{{ donation.foodType }}</td>
                     <td style="padding: 12px;">{{ donation.quantity }}</td>
+                    <td style="padding: 12px;">{{ donation.location }}</td>
+                    <td style="padding: 12px;">{{ donation.expiry }}</td>
                     <td style="padding: 12px;">
                         <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: {{ '#d4edda' if donation.status=='available' else '#fff3cd' if donation.status=='requested' else '#d1ecf1' }}; color: {{ '#155724' if donation.status=='available' else '#856404' if donation.status=='requested' else '#0c5460' }};">
                             {{ donation.status }}

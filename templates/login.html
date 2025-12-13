@@ -16,18 +16,18 @@
     {% endwith %}
 
     <form action="" method="POST" style="display: flex; flex-direction: column; gap: 18px;">
-        {{ form.hidden_tag() }}
-        <div>
-            {{ form.username.label }}<br>
-            {{ form.username(class_="form-control", style="width:100%; padding:10px; border-radius:4px; border:1px solid #ccc;") }}
-        </div>
-        <div>
-            {{ form.password.label }}<br>
-            {{ form.password(class_="form-control", style="width:100%; padding:10px; border-radius:4px; border:1px solid #ccc;") }}
-        </div>
-        <div>
-            {{ form.submit(class_="btn", style="width:100%;") }}
-        </div>
+      {{ form.hidden_tag() }}
+      <div>
+        {{ form.username.label }}<br>
+        {{ form.username(class_="form-control", style="width:100%; padding:10px; border-radius:4px; border:1px solid #ccc;") }}
+      </div>
+      <div>
+        {{ form.password.label }}<br>
+        {{ form.password(class_="form-control", style="width:100%; padding:10px; border-radius:4px; border:1px solid #ccc;") }}
+      </div>
+      <div>
+        {{ form.submit(class_="btn", style="width:100%;") }}
+      </div>
     </form>
 
     <div style="text-align: center; margin-top: 18px;">

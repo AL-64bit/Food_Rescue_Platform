@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Donation Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom: 30px;">📋 Requests for: <span style="color: #27ae60;">{{ donation.foodType }}</span></h1>
+
+    <!-- Donation Summary -->
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #3498db;">
+        <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+        <p><strong>Location:</strong> {{ donation.location }}</p>
+        <p><strong>Expiry Date:</strong> {{ donation.expiry }}</p>
+        <p><strong>Status:</strong> 
+            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: {{ '#d4edda' if donation.status=='available' else '#fff3cd' }}; color: {{ '#155724' if donation.status=='available' else '#856404' }};">
+                {{ donation.status }}
+            </span>
+        </p>
+    </div>
+
+    <!-- Requests List -->
+    {% if requests|length == 0 %}
+        <p style="color: #999; text-align: center; padding: 40px;">No requests yet for this donation.</p>
+    {% else %}
+        <div style="display: grid; gap: 15px;">
+            {% for req in requests %}
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border-left: 4px solid {{ '#28a745' if req.status=='approved' else '#dc3545' if req.status=='rejected' else '#ffc107' }};">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p><strong>Requested by:</strong> {{ req.user.username }}</p>
+                        <p><strong>Requested on:</strong> {{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Status:</strong>
+                            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: {{ '#d4edda' if req.status=='approved' else '#f8d7da' if req.status=='rejected' else '#fff3cd' }}; color: {{ '#155724' if req.status=='approved' else '#721c24' if req.status=='rejected' else '#856404' }};">
+                                {{ req.status }}
+                            </span>
+                        </p>
+                    </div>
+                    {% if req.status == 'pending' %}
+                    <div style="display: flex; gap: 10px;">
+                        <form method="POST" action="{{ url_for('approve_request', request_id=req.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-success">Approve</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reject_request', request_id=req.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('donor_dashboard') }}" class="btn" style="background: #6c757d;">← Back to My Donations</a>
+    </div>
+</div>
+{% endblock %}
