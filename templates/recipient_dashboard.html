@@ -38,7 +38,7 @@
                 {% for donation in donations %}
                 <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
                     <td style="padding: 12px;">{{ donation.foodType }}</td>
-                    <td style="padding: 12px;">{{ donation.quantity }}</td>
+                    <td style="padding: 12px;">{{ donation.quantity }} {{ donation.quantity_unit }}</td>
                     <td style="padding: 12px;">{{ donation.location }}</td>
                     <td style="padding: 12px;">{{ donation.expiry }}</td>
                     <td style="padding: 12px;">
@@ -48,9 +48,13 @@
                     </td>
                     <td style="padding: 12px;">
                         {% if donation.status == "available" %}
-                            <form action="{{ url_for('recipient_dashboard', donation_id=donation.id) }}" method="POST" style="display:inline-block;">
-                                <button class="btn btn-success" type="submit">Request</button>
-                            </form>
+                            {% if donation.id in requested_donation_ids %}
+                                <span style="color: #999;">Already Requested</span>
+                            {% else %}
+                                <form action="{{ url_for('recipient_dashboard', donation_id=donation.id) }}" method="POST" style="display:inline-block;">
+                                    <button class="btn btn-success" type="submit">Request</button>
+                                </form>
+                            {% endif %}
                         {% else %}
                             <span style="color: #999;">Not Available</span>
                         {% endif %}

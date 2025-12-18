@@ -35,7 +35,7 @@ class LoginForm(FlaskForm):
     
     submit = SubmitField("Login")
 
-class DonorForm(FlaskForm):
+class DonationForm(FlaskForm):
     foodType = SelectField(
         'Food Types', 
         choices=[
@@ -53,8 +53,21 @@ class DonorForm(FlaskForm):
         render_kw={"placeholder": "If Other, specify food"}
     )
     quantity = IntegerField(
-        'Quantity', 
+        'Quantity',
         validators=[DataRequired(), NumberRange(min=0, max=200)]
+    )
+    quantity_unit = SelectField(
+        'Unit',
+        choices=[
+            ('kg', 'kg'),
+            ('L', 'L'),
+            ('pcs', 'pcs'),
+            ('packs', 'packs'),
+            ('cans', 'cans'),
+            ('grams', 'grams'),
+            ('jars', 'jars')
+        ],
+        validators=[DataRequired()]
     )
 
     location = SelectField(

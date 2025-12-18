@@ -23,7 +23,14 @@
                 <div style="text-align: right;">
                     <div style="font-size:12px; color:#666;">Request ID: {{ req.id }}</div>
                     {% if req.status == 'pending' %}
-                        <div style="margin-top:8px; color:#777; font-size:12px;">Pending — only donor can approve/reject</div>
+                        <div style="margin-top:8px;">
+                            <form action="{{ url_for('approve_request', request_id=req.id) }}" method="post" style="display:inline;">
+                                <button type="submit" style="background:#28a745; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
+                            </form>
+                            <form action="{{ url_for('reject_request', request_id=req.id) }}" method="post" style="display:inline; margin-left:8px;">
+                                <button type="submit" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reject</button>
+                            </form>
+                        </div>
                     {% else %}
                         <div style="margin-top:8px; color:#777; font-size:12px;">Updated: {{ req.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
                     {% endif %}

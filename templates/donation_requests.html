@@ -35,14 +35,7 @@
                         </p>
                     </div>
                     {% if req.status == 'pending' %}
-                    <div style="display: flex; gap: 10px;">
-                        <form method="POST" action="{{ url_for('approve_request', request_id=req.id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-success">Approve</button>
-                        </form>
-                        <form method="POST" action="{{ url_for('reject_request', request_id=req.id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-danger">Reject</button>
-                        </form>
-                    </div>
+                    <div style="color: #856404; font-style: italic;">Pending admin approval</div>
                     {% endif %}
                 </div>
             </div>
